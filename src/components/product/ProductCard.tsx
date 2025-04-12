@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Heart } from 'lucide-react';
+import { ShoppingCart, Heart, Gift } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/data/products';
 import { useCart } from '@/hooks/useCart';
@@ -46,6 +46,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showCategory = true 
             <Badge className="bg-purple-500">{product.category}</Badge>
           </div>
         )}
+        <div className="absolute bottom-0 right-0 m-2">
+          <Badge className="bg-green-600 flex items-center">
+            <Gift className="h-3 w-3 mr-1" /> Eternal Impact
+          </Badge>
+        </div>
       </Link>
       
       <CardContent className="pt-4 flex-grow">

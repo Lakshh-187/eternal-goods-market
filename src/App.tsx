@@ -16,6 +16,8 @@ import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Impact from "./pages/Impact";
 import Feedback from "./pages/Feedback";
+import WorkingModel from "./pages/WorkingModel";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/impact" element={<Impact />} />
                 <Route path="/feedback" element={<Feedback />} />
+                <Route path="/working-model" element={<WorkingModel />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
