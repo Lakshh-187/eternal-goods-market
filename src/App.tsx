@@ -17,6 +17,7 @@ import About from "./pages/About";
 import Impact from "./pages/Impact";
 import Feedback from "./pages/Feedback";
 import WorkingModel from "./pages/WorkingModel";
+import MissionAndModel from "./pages/MissionAndModel";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/impact" element={<Impact />} />
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/working-model" element={<WorkingModel />} />
+                <Route path="/mission-and-model" element={<MissionAndModel />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

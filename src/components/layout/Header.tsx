@@ -28,8 +28,8 @@ const Header = () => {
             <Link to="/products" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
               Shop
             </Link>
-            <Link to="/about" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
-              Our Mission
+            <Link to="/mission-and-model" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
+              Our Mission & Model
             </Link>
             <Link to="/impact" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
               Impact
@@ -85,8 +85,8 @@ const Header = () => {
               <Link to="/products" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Shop
               </Link>
-              <Link to="/about" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Our Mission
+              <Link to="/mission-and-model" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                Our Mission & Model
               </Link>
               <Link to="/impact" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Impact
