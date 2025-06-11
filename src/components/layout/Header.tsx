@@ -1,13 +1,26 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Search, Menu, X, Heart } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, Heart, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { itemCount } = useCart();
+  const { user, isAdmin, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
   
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -61,6 +74,40 @@ const Header = () => {
                 )}
               </Link>
             </Button>
+
+            {/* User Menu */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <span className="font-medium">{user.email}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="outline" asChild>
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            )}
+
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
@@ -94,6 +141,22 @@ const Header = () => {
               <Link to="/feedback" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Feedback
               </Link>
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Link to="/admin" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                      Admin Panel
+                    </Link>
+                  )}
+                  <button onClick={handleSignOut} className="font-medium py-2 text-red-600 hover:text-red-700 transition-colors text-left">
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link to="/auth" className="font-medium py-2 text-purple-600 hover:text-purple-700 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  Sign In
+                </Link>
+              )}
             </nav>
           </div>
         </div>
