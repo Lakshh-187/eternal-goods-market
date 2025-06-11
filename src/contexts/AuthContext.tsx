@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +20,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Only initialize auth if Supabase is configured
+    if (!isSupabaseConfigured()) {
+      console.warn('Supabase not configured. Please connect to Supabase to enable authentication.');
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -38,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const checkAdminStatus = async (user: User | null) => {
-    if (!user) {
+    if (!user || !isSupabaseConfigured()) {
       setIsAdmin(false);
       return;
     }
@@ -58,6 +65,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string) => {
+    if (!isSupabaseConfigured()) {
+      return { error: { message: 'Supabase not configured. Please connect to Supabase first.' } };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -66,6 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!isSupabaseConfigured()) {
+      return { error: { message: 'Supabase not configured. Please connect to Supabase first.' } };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -74,6 +89,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    if (!isSupabaseConfigured()) {
+      return;
+    }
+    
     await supabase.auth.signOut();
   };
 
