@@ -4,16 +4,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Plus, Search, Upload, Edit, Trash2, CheckCircle2 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ArrowLeft, Plus, Search, Upload, Edit, Trash2, CheckCircle2, Users, Package, Target, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import productsData from '@/data/products';
 
-// Note: This is a simplified admin panel. In a real application, 
-// this would connect to a backend with proper authentication.
-
 const Admin = () => {
-  // Authentication would normally be required here
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showAddCampaign, setShowAddCampaign] = useState(false);
@@ -32,370 +29,388 @@ const Admin = () => {
     { id: '4', name: 'Healthcare for Children', status: 'completed', activists: 'Health Hands', beneficiaries: 87, funds: 15200 },
   ];
 
+  // Mock statistics
+  const stats = [
+    { title: 'Total Products', value: productsData.length, icon: Package, color: 'bg-blue-500' },
+    { title: 'Active Campaigns', value: campaigns.filter(c => c.status === 'active').length, icon: Target, color: 'bg-green-500' },
+    { title: 'Total Users', value: '1,234', icon: Users, color: 'bg-purple-500' },
+    { title: 'Funds Raised', value: '$42,700', icon: TrendingUp, color: 'bg-orange-500' },
+  ];
+
   return (
-    <div className="container-custom py-8">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center">
-          <Button variant="ghost" className="mr-4" asChild>
-            <Link to="/">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Site
-            </Link>
-          </Button>
-          <h1 className="text-2xl font-playfair font-semibold">Admin Dashboard</h1>
-        </div>
-        <div>
-          {/* This would normally be a logout button with proper auth */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" asChild>
+              <Link to="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Site
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-sm text-gray-500">Manage your platform efficiently</p>
+            </div>
+          </div>
           <Button variant="outline" asChild>
             <Link to="/">Exit Admin Mode</Link>
           </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="products">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 mb-8">
-          <TabsTrigger value="products">Products Management</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaign Management</TabsTrigger>
-          <TabsTrigger value="users">User Management</TabsTrigger>
-        </TabsList>
-        
-        {/* Products Management Tab */}
-        <TabsContent value="products" className="space-y-6">
-          {showAddProduct ? (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-medium">Add New Product</h2>
-                <Button variant="ghost" onClick={() => setShowAddProduct(false)}>Cancel</Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+      <div className="container-custom py-8">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="productName">Product Name</Label>
-                    <Input id="productName" placeholder="Enter product name" />
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
                   </div>
-                  <div>
-                    <Label htmlFor="productCategory">Category</Label>
-                    <Input id="productCategory" placeholder="Enter category" />
-                  </div>
-                  <div>
-                    <Label htmlFor="productPrice">Price ($)</Label>
-                    <Input id="productPrice" type="number" placeholder="0.00" />
-                  </div>
-                  <div>
-                    <Label htmlFor="productStock">In Stock</Label>
-                    <Input id="productStock" type="number" placeholder="0" />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="inStock" className="rounded border-gray-300" />
-                    <Label htmlFor="inStock">Product is in stock</Label>
+                  <div className={`p-3 rounded-full ${stat.color}`}>
+                    <stat.icon className="h-6 w-6 text-white" />
                   </div>
                 </div>
-                
-                <div className="space-y-4">
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="products" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+            <TabsTrigger value="products">Products Management</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaign Management</TabsTrigger>
+            <TabsTrigger value="users">User Management</TabsTrigger>
+          </TabsList>
+          
+          {/* Products Management Tab */}
+          <TabsContent value="products">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
-                    <Label htmlFor="shortDescription">Short Description</Label>
-                    <Input id="shortDescription" placeholder="Brief product description" />
+                    <CardTitle>Products</CardTitle>
+                    <CardDescription>Manage your product catalog</CardDescription>
                   </div>
-                  <div>
-                    <Label htmlFor="fullDescription">Full Description</Label>
-                    <textarea 
-                      id="fullDescription" 
-                      rows={3} 
-                      className="w-full p-2 border rounded-md" 
-                      placeholder="Detailed product description"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="impact">Social Impact</Label>
-                    <textarea 
-                      id="impact" 
-                      rows={2} 
-                      className="w-full p-2 border rounded-md" 
-                      placeholder="How this product creates impact"
-                    />
-                  </div>
-                  <div>
-                    <Label>Product Images</Label>
-                    <div className="mt-2 border-2 border-dashed rounded-md p-8 text-center">
-                      <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm text-gray-600">Drag images here or click to upload</p>
-                      <Button variant="outline" size="sm" className="mt-4">
-                        Select Files
-                      </Button>
+                  <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-80">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="Search products..."
+                        className="pl-10"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
                     </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <Label>Link to Campaign</Label>
-                <select className="w-full p-2 border rounded-md mt-1">
-                  <option value="">Select a campaign</option>
-                  {campaigns.map(campaign => (
-                    <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="mt-8 flex justify-end">
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  Save Product
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="flex flex-col md:flex-row justify-between gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input
-                    placeholder="Search products..."
-                    className="pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <Button onClick={() => setShowAddProduct(true)}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Product
-                </Button>
-              </div>
-              
-              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {filteredProducts.map((product) => (
-                        <tr key={product.id}>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="h-10 w-10 flex-shrink-0">
-                                <img className="h-10 w-10 rounded-md object-cover" src={product.images[0]} alt={product.name} />
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                              {product.category}
-                            </span>
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${product.price.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            {product.inStock ? (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                In Stock
-                              </span>
-                            ) : (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                Out of Stock
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                            Village Education
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-900">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-900">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {filteredProducts.length === 0 && (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-500">No products found matching your search.</p>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </TabsContent>
-        
-        {/* Campaign Management Tab */}
-        <TabsContent value="campaigns" className="space-y-6">
-          {showAddCampaign ? (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-medium">Add New Campaign</h2>
-                <Button variant="ghost" onClick={() => setShowAddCampaign(false)}>Cancel</Button>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <Label htmlFor="campaignName">Campaign Name</Label>
-                  <Input id="campaignName" placeholder="Enter campaign name" />
-                </div>
-                
-                <div>
-                  <Label htmlFor="campaignDescription">Description</Label>
-                  <textarea 
-                    id="campaignDescription" 
-                    rows={3} 
-                    className="w-full p-2 border rounded-md" 
-                    placeholder="Describe the campaign and its goals"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="socialActivist">Social Activist/Organization</Label>
-                    <Input id="socialActivist" placeholder="Organization name" />
-                  </div>
-                  <div>
-                    <Label htmlFor="targetAmount">Target Amount ($)</Label>
-                    <Input id="targetAmount" type="number" placeholder="0.00" />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="beneficiaries">Beneficiaries</Label>
-                  <textarea 
-                    id="beneficiaries" 
-                    rows={3} 
-                    className="w-full p-2 border rounded-md" 
-                    placeholder="List the beneficiaries of this campaign"
-                  />
-                </div>
-                
-                <div>
-                  <Label>Campaign Images</Label>
-                  <div className="mt-2 border-2 border-dashed rounded-md p-8 text-center">
-                    <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm text-gray-600">Drag images here or click to upload</p>
-                    <Button variant="outline" size="sm" className="mt-4">
-                      Select Files
+                    <Button onClick={() => setShowAddProduct(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Product
                     </Button>
                   </div>
                 </div>
-              </div>
-              
-              <div className="mt-8 flex justify-end">
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  Create Campaign
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="flex flex-col md:flex-row justify-between gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input
-                    placeholder="Search campaigns..."
-                    className="pl-10"
-                  />
+              </CardHeader>
+              <CardContent>
+                {showAddProduct ? (
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-medium">Add New Product</h3>
+                      <Button variant="ghost" onClick={() => setShowAddProduct(false)}>Cancel</Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="productName">Product Name</Label>
+                          <Input id="productName" placeholder="Enter product name" />
+                        </div>
+                        <div>
+                          <Label htmlFor="productCategory">Category</Label>
+                          <Input id="productCategory" placeholder="Enter category" />
+                        </div>
+                        <div>
+                          <Label htmlFor="productPrice">Price ($)</Label>
+                          <Input id="productPrice" type="number" placeholder="0.00" />
+                        </div>
+                        <div>
+                          <Label htmlFor="shortDescription">Short Description</Label>
+                          <Input id="shortDescription" placeholder="Brief product description" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="fullDescription">Full Description</Label>
+                          <textarea 
+                            id="fullDescription" 
+                            rows={3} 
+                            className="w-full p-3 border rounded-md resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                            placeholder="Detailed product description"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="impact">Social Impact</Label>
+                          <textarea 
+                            id="impact" 
+                            rows={3} 
+                            className="w-full p-3 border rounded-md resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                            placeholder="How this product creates impact"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Card className="border-dashed">
+                      <CardContent className="p-8 text-center">
+                        <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                        <p className="text-lg font-medium text-gray-900 mb-2">Upload Product Images</p>
+                        <p className="text-sm text-gray-500 mb-4">Drag images here or click to browse</p>
+                        <Button variant="outline">Select Files</Button>
+                      </CardContent>
+                    </Card>
+                    
+                    <div className="flex justify-end pt-4">
+                      <Button className="bg-purple-600 hover:bg-purple-700">Save Product</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Campaign</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredProducts.map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell>
+                            <div className="flex items-center space-x-3">
+                              <img className="h-12 w-12 rounded-lg object-cover" src={product.images[0]} alt={product.name} />
+                              <div>
+                                <p className="font-medium text-gray-900">{product.name}</p>
+                                <p className="text-sm text-gray-500">ID: {product.id}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                              {product.category}
+                            </span>
+                          </TableCell>
+                          <TableCell className="font-medium">${product.price.toFixed(2)}</TableCell>
+                          <TableCell>
+                            {product.inStock ? (
+                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                In Stock
+                              </span>
+                            ) : (
+                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                Out of Stock
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm text-gray-600">Village Education</span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end space-x-2">
+                              <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-900">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-900">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Campaign Management Tab */}
+          <TabsContent value="campaigns">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div>
+                    <CardTitle>Campaigns</CardTitle>
+                    <CardDescription>Manage social impact campaigns</CardDescription>
+                  </div>
+                  <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-80">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input placeholder="Search campaigns..." className="pl-10" />
+                    </div>
+                    <Button onClick={() => setShowAddCampaign(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Campaign
+                    </Button>
+                  </div>
                 </div>
-                <Button onClick={() => setShowAddCampaign(true)}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Campaign
-                </Button>
-              </div>
-              
-              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activist</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beneficiaries</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funds Raised</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {campaigns.map((campaign) => (
-                      <tr key={campaign.id}>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{campaign.name}</div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            campaign.status === 'active' ? 'bg-green-100 text-green-800' : 
-                            campaign.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                            'bg-blue-100 text-blue-800'
-                          }`}>
-                            {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {campaign.activists}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {campaign.beneficiaries}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${campaign.funds.toLocaleString()}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-900">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          {campaign.status === 'pending' && (
-                            <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-900">
-                              <CheckCircle2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-        </TabsContent>
-        
-        {/* User Management Tab */}
-        <TabsContent value="users" className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border text-center">
-            <h3 className="text-lg font-medium mb-4">User Management</h3>
-            <p className="text-gray-500 mb-4">
-              This section would typically contain user management features, including:
-            </p>
-            <ul className="text-left max-w-md mx-auto space-y-2 mb-6">
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                <span>Donor account management</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                <span>Social activist verification</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                <span>Admin privileges management</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                <span>User activity tracking</span>
-              </li>
-            </ul>
-            <p className="text-sm text-gray-500">
-              In a full implementation, this would connect to a backend user management system.
-            </p>
-          </div>
-        </TabsContent>
-      </Tabs>
+              </CardHeader>
+              <CardContent>
+                {showAddCampaign ? (
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-medium">Create New Campaign</h3>
+                      <Button variant="ghost" onClick={() => setShowAddCampaign(false)}>Cancel</Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-6">
+                      <div>
+                        <Label htmlFor="campaignName">Campaign Name</Label>
+                        <Input id="campaignName" placeholder="Enter campaign name" />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="campaignDescription">Description</Label>
+                        <textarea 
+                          id="campaignDescription" 
+                          rows={4} 
+                          className="w-full p-3 border rounded-md resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                          placeholder="Describe the campaign and its goals"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="socialActivist">Social Activist/Organization</Label>
+                          <Input id="socialActivist" placeholder="Organization name" />
+                        </div>
+                        <div>
+                          <Label htmlFor="targetAmount">Target Amount ($)</Label>
+                          <Input id="targetAmount" type="number" placeholder="0.00" />
+                        </div>
+                      </div>
+                      
+                      <Card className="border-dashed">
+                        <CardContent className="p-8 text-center">
+                          <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                          <p className="text-lg font-medium text-gray-900 mb-2">Upload Campaign Images</p>
+                          <p className="text-sm text-gray-500 mb-4">Add visual content for your campaign</p>
+                          <Button variant="outline">Select Files</Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    
+                    <div className="flex justify-end pt-4">
+                      <Button className="bg-purple-600 hover:bg-purple-700">Create Campaign</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Campaign</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Activist</TableHead>
+                        <TableHead>Beneficiaries</TableHead>
+                        <TableHead>Funds Raised</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {campaigns.map((campaign) => (
+                        <TableRow key={campaign.id}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium text-gray-900">{campaign.name}</p>
+                              <p className="text-sm text-gray-500">ID: {campaign.id}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              campaign.status === 'active' ? 'bg-green-100 text-green-800' : 
+                              campaign.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                              'bg-blue-100 text-blue-800'
+                            }`}>
+                              {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-gray-900">{campaign.activists}</TableCell>
+                          <TableCell className="text-gray-900">{campaign.beneficiaries}</TableCell>
+                          <TableCell className="font-medium">${campaign.funds.toLocaleString()}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end space-x-2">
+                              <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-900">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              {campaign.status === 'pending' && (
+                                <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-900">
+                                  <CheckCircle2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* User Management Tab */}
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>Manage platform users and permissions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Users className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">User Management System</h3>
+                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                    This section would contain comprehensive user management features including donor accounts, 
+                    social activist verification, admin privileges, and activity tracking.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    <Card className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span className="text-sm">Donor account management</span>
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span className="text-sm">Social activist verification</span>
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span className="text-sm">Admin privileges management</span>
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span className="text-sm">User activity tracking</span>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
