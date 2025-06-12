@@ -1,8 +1,16 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Search, Menu, X, Heart, User, LogOut, Settings } from 'lucide-react';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  ShoppingCart, 
+  User, 
+  Search, 
+  Menu,
+  LogOut,
+  Settings
+} from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -14,63 +22,62 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { itemCount } = useCart();
+  const { items } = useCart();
   const { user, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleSignOut = async () => {
     await signOut();
+    navigate('/auth');
   };
-  
+
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container-custom py-4">
-        <div className="flex items-center justify-between">
+    <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="container-custom">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <h1 className="text-2xl font-bold font-playfair text-purple-800">
-              <span className="gradient-text">Eternal</span> Goods
-            </h1>
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">S</span>
+            </div>
+            <span className="font-bold text-xl text-gray-900">SocialShop</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
+            <Link to="/" className="text-gray-700 hover:text-purple-600 transition-colors">
               Home
             </Link>
-            <Link to="/products" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
-              Shop
+            <Link to="/products" className="text-gray-700 hover:text-purple-600 transition-colors">
+              Products
             </Link>
-            <Link to="/mission-and-model" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
-              Our Mission & Model
+            <Link to="/about" className="text-gray-700 hover:text-purple-600 transition-colors">
+              About
             </Link>
-            <Link to="/impact" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
+            <Link to="/impact" className="text-gray-700 hover:text-purple-600 transition-colors">
               Impact
-            </Link>
-            <Link to="/feedback" className="font-medium text-gray-700 hover:text-purple-600 transition-colors">
-              Feedback
             </Link>
           </nav>
 
-          {/* Cart and Icons */}
+          {/* Right Section */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="relative" asChild>
-              <Link to="/search">
-                <Search className="h-5 w-5" />
-              </Link>
+            {/* Search */}
+            <Button variant="ghost" size="sm">
+              <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="relative" asChild>
-              <Link to="/wishlist">
-                <Heart className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" className="relative" asChild>
+
+            {/* Cart */}
+            <Button variant="ghost" size="sm" asChild className="relative">
               <Link to="/cart">
                 <ShoppingCart className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                  >
                     {itemCount}
-                  </span>
+                  </Badge>
                 )}
               </Link>
             </Button>
@@ -79,88 +86,53 @@ const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
                     <User className="h-5 w-5" />
+                    <span className="hidden md:inline-block">
+                      {user.user_metadata?.first_name || user.email}
+                    </span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem asChild>
-                    <span className="font-medium">{user.email}</span>
+                    <Link to="/profile" className="flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  
                   {isAdmin && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin" className="flex items-center">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Admin Panel
-                      </Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="flex items-center">
+                          <Settings className="mr-2 h-4 w-4" />
+                          Admin Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
-                  <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                    <LogOut className="h-4 w-4 mr-2" />
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="outline" asChild>
+              <Button asChild className="bg-purple-600 hover:bg-purple-700">
                 <Link to="/auth">Sign In</Link>
               </Button>
             )}
 
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(true)}>
+            {/* Mobile menu */}
+            <Button variant="ghost" size="sm" className="md:hidden">
               <Menu className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="bg-white h-full w-80 max-w-full p-6 animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-playfair font-semibold">Menu</h3>
-              <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(false)}>
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            <nav className="flex flex-col space-y-4">
-              <Link to="/" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Home
-              </Link>
-              <Link to="/products" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Shop
-              </Link>
-              <Link to="/mission-and-model" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Our Mission & Model
-              </Link>
-              <Link to="/impact" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Impact
-              </Link>
-              <Link to="/feedback" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Feedback
-              </Link>
-              {user ? (
-                <>
-                  {isAdmin && (
-                    <Link to="/admin" className="font-medium py-2 text-gray-700 hover:text-purple-600 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                      Admin Panel
-                    </Link>
-                  )}
-                  <button onClick={handleSignOut} className="font-medium py-2 text-red-600 hover:text-red-700 transition-colors text-left">
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <Link to="/auth" className="font-medium py-2 text-purple-600 hover:text-purple-700 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  Sign In
-                </Link>
-              )}
-            </nav>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
