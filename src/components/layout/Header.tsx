@@ -17,7 +17,7 @@ import {
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { totalItems } = useCart();
+  const { itemCount } = useCart();
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -65,9 +65,9 @@ const Header = () => {
             <Button variant="ghost" size="icon" className="relative" asChild>
               <Link to="/cart">
                 <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
+                {itemCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-purple-600">
-                    {totalItems}
+                    {itemCount}
                   </Badge>
                 )}
               </Link>
