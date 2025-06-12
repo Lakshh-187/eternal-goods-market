@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,18 +6,49 @@ const About = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-purple-800 text-white py-20">
-        <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-20"></div>
-        <div className="absolute inset-0 bg-purple-800 bg-opacity-60"></div>
-        <div className="container-custom relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-6 leading-tight">
-              Our Mission
-            </h1>
-            <p className="text-xl text-gray-200 mb-6">
-              Creating products with impact that extends beyond life,
-              empowering communities and creating eternal blessings.
-            </p>
+      <section className="relative bg-gradient-to-r from-purple-800 to-purple-900 text-white overflow-hidden min-h-[70vh]">
+        <div className="container-custom relative z-10 py-12 md:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[60vh]">
+            {/* Left Content */}
+            <div className="space-y-6 lg:pr-8">
+              <div className="inline-block">
+                <span className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+                  OUR MISSION
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-playfair leading-tight">
+                Building a Future Through
+                <span className="text-gold-400 block">Eternal Impact</span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-lg">
+                Creating products with impact that extends beyond life, empowering communities 
+                and creating eternal blessings through modern platforms and zero-fee opportunities.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button size="lg" className="bg-gold-500 hover:bg-gold-600 text-purple-900 font-semibold px-8" asChild>
+                  <Link to="/products">
+                    Shop Our Products
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8" asChild>
+                  <Link to="/impact">
+                    See Our Impact
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Right Image */}
+            <div className="relative order-first lg:order-last">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src="https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?w=600&h=600&fit=crop" 
+                  alt="Building communities through social impact"
+                  className="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent"></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -40,7 +70,7 @@ const About = () => {
               </p>
             </div>
             <div className="aspect-square bg-gray-100 rounded-lg">
-              <img src="/placeholder.svg" alt="Our founder" className="w-full h-full object-cover rounded-lg" />
+              <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=500&h=500&fit=crop" alt="Our founder" className="w-full h-full object-cover rounded-lg" />
             </div>
           </div>
         </div>
@@ -95,7 +125,7 @@ const About = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="aspect-square rounded-full overflow-hidden w-48 h-48 mx-auto mb-4">
-                <img src="/placeholder.svg" alt="Team member" className="w-full h-full object-cover" />
+                <img src="https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?w=600&h=600&fit=crop" alt="Team member" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-xl font-playfair font-semibold">Sarah Johnson</h3>
               <p className="text-purple-600 mb-2">Founder & CEO</p>
@@ -105,7 +135,7 @@ const About = () => {
             </div>
             <div className="text-center">
               <div className="aspect-square rounded-full overflow-hidden w-48 h-48 mx-auto mb-4">
-                <img src="/placeholder.svg" alt="Team member" className="w-full h-full object-cover" />
+                <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=500&h=500&fit=crop" alt="Team member" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-xl font-playfair font-semibold">Michael Chen</h3>
               <p className="text-purple-600 mb-2">Community Impact Director</p>
@@ -115,7 +145,7 @@ const About = () => {
             </div>
             <div className="text-center">
               <div className="aspect-square rounded-full overflow-hidden w-48 h-48 mx-auto mb-4">
-                <img src="/placeholder.svg" alt="Team member" className="w-full h-full object-cover" />
+                <img src="https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?w=600&h=600&fit=crop" alt="Team member" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-xl font-playfair font-semibold">Priya Sharma</h3>
               <p className="text-purple-600 mb-2">Product Designer</p>

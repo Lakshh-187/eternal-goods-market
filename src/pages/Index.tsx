@@ -12,28 +12,49 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-purple-800 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-20"></div>
-        <div className="absolute inset-0 bg-purple-800 bg-opacity-60"></div>
-        <div className="container-custom relative z-10 py-20 md:py-32">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-6 leading-tight">
-              Products with a Guarantee <span className="text-gold-400">Beyond Life</span>
-            </h1>
-            <p className="text-lg md:text-xl mb-8 text-gray-200">
-              Every purchase empowers communities through education, nutrition, and clothing - creating blessings that last eternally.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-gold-500 hover:bg-gold-600 text-purple-900 font-semibold" asChild>
-                <Link to="/products">
-                  Shop Now <ShoppingBag className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
-                <Link to="/about">
-                  Our Mission <Heart className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+      <section className="relative bg-gradient-to-r from-purple-800 to-purple-900 text-white overflow-hidden min-h-[70vh]">
+        <div className="container-custom relative z-10 py-12 md:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[60vh]">
+            {/* Left Content */}
+            <div className="space-y-6 lg:pr-8">
+              <div className="inline-block">
+                <span className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+                  TRANSFORMING LIVES
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-playfair leading-tight">
+                Transforming Lives &
+                Communities Through
+                <span className="text-gold-400 block">Eternal Impact</span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-lg">
+                Building a future where quality products create lasting change through 
+                social initiatives, modern impact platforms, and zero-fee opportunities.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button size="lg" className="bg-gold-500 hover:bg-gold-600 text-purple-900 font-semibold px-8" asChild>
+                  <Link to="/products">
+                    Shop Now
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8" asChild>
+                  <Link to="/about">
+                    Explore Programs
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Right Image */}
+            <div className="relative order-first lg:order-last">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src="/lovable-uploads/bf607f50-1e76-4fbb-84f5-de44d4659b0b.png" 
+                  alt="Transforming Students & Institutes Through CSR Grants"
+                  className="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent"></div>
+              </div>
             </div>
           </div>
         </div>

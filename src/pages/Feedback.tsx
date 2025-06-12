@@ -21,15 +21,47 @@ const Feedback = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-purple-800 text-white py-16">
-        <div className="container-custom">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold font-playfair mb-4">
-              Share Your Experience
-            </h1>
-            <p className="text-xl text-gray-200">
-              Your feedback helps us improve and continue our mission of creating eternal impact.
-            </p>
+      <section className="relative bg-gradient-to-r from-purple-800 to-purple-900 text-white overflow-hidden min-h-[70vh]">
+        <div className="container-custom relative z-10 py-12 md:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[60vh]">
+            {/* Left Content */}
+            <div className="space-y-6 lg:pr-8">
+              <div className="inline-block">
+                <span className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+                  YOUR VOICE MATTERS
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-playfair leading-tight">
+                Share Your
+                <span className="text-gold-400 block">Experience</span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-lg">
+                Your feedback helps us improve and continue our mission of creating eternal impact. 
+                Every voice contributes to building better platforms and opportunities.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button size="lg" className="bg-gold-500 hover:bg-gold-600 text-purple-900 font-semibold px-8">
+                  Share Feedback
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8" asChild>
+                  <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer">
+                    Message Us
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Right Image */}
+            <div className="relative order-first lg:order-last">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=600&fit=crop" 
+                  alt="Customer sharing feedback"
+                  className="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent"></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
