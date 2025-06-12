@@ -3,10 +3,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Heart, Gift } from 'lucide-react';
+import { ShoppingCart, Heart, Gift, CreditCard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/data/products';
 import { useCart } from '@/hooks/useCart';
+import RazorpayPayment from '@/components/payment/RazorpayPayment';
 
 interface ProductCardProps {
   product: Product;
@@ -66,20 +67,39 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showCategory = true 
         </div>
       </CardContent>
       
-      <CardFooter className="pt-0 flex gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex-1"
-          onClick={handleAddToCart}
+      <CardFooter className="pt-0 flex flex-col gap-2">
+        <div className="flex gap-2 w-full">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={handleAddToCart}
+            disabled={!product.inStock}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Add to Cart
+          </Button>
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <Heart className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        {/* Buy Now Button */}
+        <RazorpayPayment
+          amount={product.price}
+          productName={product.name}
+          productId={product.id}
           disabled={!product.inStock}
+          className="w-full"
         >
-          <ShoppingCart className="h-4 w-4 mr-2" />
-          Add to Cart
-        </Button>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Heart className="h-4 w-4" />
-        </Button>
+          <Button 
+            className="w-full bg-orange-600 hover:bg-orange-700" 
+            disabled={!product.inStock}
+          >
+            <CreditCard className="h-4 w-4 mr-2" />
+            Buy Now
+          </Button>
+        </RazorpayPayment>
       </CardFooter>
     </Card>
   );

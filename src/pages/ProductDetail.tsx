@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Share2, ShoppingCart, Star, Check, ArrowLeft } from 'lucide-react';
+import { Heart, Share2, ShoppingCart, Star, Check, ArrowLeft, CreditCard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
 import productsData from '@/data/products';
 import { useCart } from '@/hooks/useCart';
 import ProductGrid from '@/components/product/ProductGrid';
+import RazorpayPayment from '@/components/payment/RazorpayPayment';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -160,6 +161,26 @@ const ProductDetail = () => {
               <ShoppingCart className="mr-2 h-5 w-5" />
               Add to Cart
             </Button>
+          </div>
+
+          {/* Buy Now Button */}
+          <div className="mb-6">
+            <RazorpayPayment
+              amount={product.price * quantity}
+              productName={product.name}
+              productId={product.id}
+              quantity={quantity}
+              disabled={!product.inStock}
+              className="w-full"
+            >
+              <Button 
+                className="w-full bg-orange-600 hover:bg-orange-700 text-lg py-3" 
+                disabled={!product.inStock}
+              >
+                <CreditCard className="mr-2 h-6 w-6" />
+                Buy Now - ${(product.price * quantity).toFixed(2)}
+              </Button>
+            </RazorpayPayment>
           </div>
 
           {/* Action Buttons */}

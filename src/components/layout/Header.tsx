@@ -1,31 +1,33 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ShoppingCart, 
-  User, 
-  Search, 
-  Menu,
-  LogOut,
-  Settings
-} from 'lucide-react';
+import { Menu, ShoppingCart, User, LogOut, Settings } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 const Header = () => {
-  const { items } = useCart();
+  const [isOpen, setIsOpen] = useState(false);
+  const { totalItems } = useCart();
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const navigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Products', href: '/products' },
+    { name: 'About', href: '/about' },
+    { name: 'Impact', href: '/impact' },
+    { name: 'Our Model', href: '/mission-and-model' },
+  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -35,48 +37,37 @@ const Header = () => {
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="container-custom">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">S</span>
+            <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">E</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">SocialShop</span>
+            <span className="font-bold text-xl text-gray-900">Eternal Impact</span>
           </Link>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-purple-600 transition-colors">
-              Home
-            </Link>
-            <Link to="/products" className="text-gray-700 hover:text-purple-600 transition-colors">
-              Products
-            </Link>
-            <Link to="/about" className="text-gray-700 hover:text-purple-600 transition-colors">
-              About
-            </Link>
-            <Link to="/impact" className="text-gray-700 hover:text-purple-600 transition-colors">
-              Impact
-            </Link>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-8">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className="text-gray-700 hover:text-purple-600 transition-colors font-medium"
+              >
+                {item.name}
+              </Link>
+            ))}
           </nav>
 
-          {/* Right Section */}
+          {/* Actions */}
           <div className="flex items-center space-x-4">
-            {/* Search */}
-            <Button variant="ghost" size="sm">
-              <Search className="h-5 w-5" />
-            </Button>
-
             {/* Cart */}
-            <Button variant="ghost" size="sm" asChild className="relative">
+            <Button variant="ghost" size="icon" className="relative" asChild>
               <Link to="/cart">
                 <ShoppingCart className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                  >
-                    {itemCount}
+                {totalItems > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-purple-600">
+                    {totalItems}
                   </Badge>
                 )}
               </Link>
@@ -86,50 +77,71 @@ const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                  <Button variant="ghost" size="icon">
                     <User className="h-5 w-5" />
-                    <span className="hidden md:inline-block">
-                      {user.user_metadata?.first_name || user.email}
-                    </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="flex items-center">
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  
+                  <div className="px-2 py-1.5 text-sm font-medium">
+                    {user.email}
+                  </div>
+                  <DropdownMenuSeparator />
                   {isAdmin && (
                     <>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/admin" className="flex items-center">
+                        <Link to="/admin" className="cursor-pointer">
                           <Settings className="mr-2 h-4 w-4" />
                           Admin Panel
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                     </>
                   )}
-                  
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild className="bg-purple-600 hover:bg-purple-700">
+              <Button asChild>
                 <Link to="/auth">Sign In</Link>
               </Button>
             )}
 
-            {/* Mobile menu */}
-            <Button variant="ghost" size="sm" className="md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
+            {/* Mobile Menu */}
+            <div className="lg:hidden">
+              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80">
+                  <div className="flex flex-col space-y-4 mt-8">
+                    {navigation.map((item) => (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className="text-lg font-medium text-gray-700 hover:text-purple-600 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                    {user && isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="text-lg font-medium text-gray-700 hover:text-purple-600 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
