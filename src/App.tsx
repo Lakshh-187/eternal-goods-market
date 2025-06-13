@@ -4,54 +4,60 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CartProvider } from "@/hooks/useCart";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-
-// Pages
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Impact from "./pages/Impact";
-import Feedback from "./pages/Feedback";
-import WorkingModel from "./pages/WorkingModel";
 import MissionAndModel from "./pages/MissionAndModel";
-import Admin from "./pages/Admin";
+import WorkingModel from "./pages/WorkingModel";
+import Feedback from "./pages/Feedback";
+import Cart from "./pages/Cart";
 import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <div className="flex flex-col min-h-screen">
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <div className="min-h-screen flex flex-col">
               <Header />
-              <main className="flex-grow">
+              <main className="flex-1">
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/products/:id" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/impact" element={<Impact />} />
-                  <Route path="/feedback" element={<Feedback />} />
+                  <Route path="/mission" element={<MissionAndModel />} />
                   <Route path="/working-model" element={<WorkingModel />} />
-                  <Route path="/mission-and-model" element={<MissionAndModel />} />
+                  <Route path="/feedback" element={<Feedback />} />
+                  <Route path="/cart" element={<Cart />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route 
+                    path="/profile" 
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } 
+                  />
                   <Route 
                     path="/admin" 
                     element={
-                      <ProtectedRoute requireAdmin={true}>
+                      <ProtectedRoute requireAdmin>
                         <Admin />
                       </ProtectedRoute>
                     } 
@@ -61,11 +67,11 @@ const App = () => (
               </main>
               <Footer />
             </div>
-          </BrowserRouter>
-        </CartProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

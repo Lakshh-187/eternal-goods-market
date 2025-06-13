@@ -1,27 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Plus, Search, Upload, Edit, Trash2, CheckCircle2, Users, Package, Target, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Users, Package, Target, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import AdminProductManagement from '@/components/admin/AdminProductManagement';
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showAddProduct, setShowAddProduct] = useState(false);
-  const [showAddCampaign, setShowAddCampaign] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [stats, setStats] = useState({
     totalProducts: 0,
     activeOrders: 0,
@@ -52,23 +45,11 @@ const Admin = () => {
       // Load products
       const { data: productsData, error: productsError } = await supabase
         .from('products')
-        .select(`
-          *,
-          categories(name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (productsError) throw productsError;
       setProducts(productsData || []);
-
-      // Load categories
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
-
-      if (categoriesError) throw categoriesError;
-      setCategories(categoriesData || []);
 
       // Load orders
       const { data: ordersData, error: ordersError } = await supabase
@@ -105,11 +86,6 @@ const Admin = () => {
       toast.error('Failed to load admin data');
     }
   };
-
-  const filteredProducts = products.filter(
-    product => product.name.toLowerCase().includes(searchQuery.toLowerCase()) 
-      || (product.categories?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const statsCards = [
     { title: 'Total Products', value: stats.totalProducts, icon: Package, color: 'bg-blue-500' },
@@ -160,98 +136,18 @@ const Admin = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
-            <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+            <TabsTrigger value="products">Product Management</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="customers">Customers</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           
-          {/* Products Tab */}
+          {/* Products Tab - Now using the new comprehensive management system */}
           <TabsContent value="products">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div>
-                    <CardTitle>Products Management</CardTitle>
-                    <CardDescription>Manage your product catalog</CardDescription>
-                  </div>
-                  <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-80">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        placeholder="Search products..."
-                        className="pl-10"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <Button onClick={() => setShowAddProduct(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Product
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Stock</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredProducts.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
-                            {product.image_urls && product.image_urls[0] && (
-                              <img className="h-12 w-12 rounded-lg object-cover" src={product.image_urls[0]} alt={product.name} />
-                            )}
-                            <div>
-                              <p className="font-medium text-gray-900">{product.name}</p>
-                              <p className="text-sm text-gray-500">SKU: {product.sku || 'N/A'}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                            {product.categories?.name || 'Uncategorized'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-medium">₹{parseFloat(product.price).toFixed(2)}</TableCell>
-                        <TableCell>{product.stock}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {product.status}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end space-x-2">
-                            <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-900">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-900">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <AdminProductManagement />
           </TabsContent>
 
-          {/* Orders Tab */}
+          {/* Orders Tab - keeping existing functionality */}
           <TabsContent value="orders">
             <Card>
               <CardHeader>
@@ -316,7 +212,7 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
-          {/* Customers Tab */}
+          {/* Customers Tab - keeping existing functionality */}
           <TabsContent value="customers">
             <Card>
               <CardHeader>
@@ -360,39 +256,6 @@ const Admin = () => {
                     ))}
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Admin Settings</CardTitle>
-                <CardDescription>Configure your store settings</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <Label htmlFor="storeName">Store Name</Label>
-                    <Input id="storeName" placeholder="Your Store Name" />
-                  </div>
-                  <div>
-                    <Label htmlFor="storeEmail">Store Email</Label>
-                    <Input id="storeEmail" type="email" placeholder="admin@store.com" />
-                  </div>
-                  <div>
-                    <Label htmlFor="currency">Currency</Label>
-                    <Input id="currency" placeholder="INR" />
-                  </div>
-                  <div>
-                    <Label htmlFor="taxRate">Tax Rate (%)</Label>
-                    <Input id="taxRate" type="number" placeholder="18" />
-                  </div>
-                  <Button className="bg-purple-600 hover:bg-purple-700">
-                    Save Settings
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>

@@ -132,6 +132,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -280,45 +313,107 @@ export type Database = {
           },
         ]
       }
+      product_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          product_id: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          product_id?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          product_id?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_analytics_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
           created_at: string
           description: string | null
+          dimensions: string | null
           id: string
           image_urls: string[] | null
+          meta_description: string | null
+          meta_title: string | null
           name: string
           price: number
+          short_description: string | null
           sku: string | null
           status: string | null
           stock: number
+          tags: string[] | null
           updated_at: string
+          weight: number | null
         }
         Insert: {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: string | null
           id?: string
           image_urls?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
           price: number
+          short_description?: string | null
           sku?: string | null
           status?: string | null
           stock?: number
+          tags?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Update: {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: string | null
           id?: string
           image_urls?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
           price?: number
+          short_description?: string | null
           sku?: string | null
           status?: string | null
           stock?: number
+          tags?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Relationships: [
           {
@@ -329,6 +424,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number | null
+          discount_type?: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_usage: {
+        Row: {
+          created_at: string
+          discount_amount: number
+          final_amount: number
+          id: string
+          order_id: string | null
+          original_amount: number
+          referral_code_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          discount_amount: number
+          final_amount: number
+          id?: string
+          order_id?: string | null
+          original_amount: number
+          referral_code_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          discount_amount?: number
+          final_amount?: number
+          id?: string
+          order_id?: string | null
+          original_amount?: number
+          referral_code_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_usage_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_usage_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          date_of_birth: string | null
+          first_name: string | null
+          gender: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          preferences: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -363,6 +587,16 @@ export type Database = {
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      track_product_event: {
+        Args: {
+          p_product_id: string
+          p_event_type: string
+          p_user_id?: string
+          p_session_id?: string
+          p_metadata?: Json
+        }
+        Returns: string
       }
     }
     Enums: {
