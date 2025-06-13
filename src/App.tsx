@@ -18,7 +18,7 @@ import WorkingModel from "./pages/WorkingModel";
 import Feedback from "./pages/Feedback";
 import Cart from "./pages/Cart";
 import Auth from "./pages/Auth";
-import Admin from "./pages/Admin";
+import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -60,7 +60,7 @@ function App() {
                       path="/admin" 
                       element={
                         <ProtectedRoute requireAdmin>
-                          <Admin />
+                          <AdminDashboard />
                         </ProtectedRoute>
                       } 
                     />
