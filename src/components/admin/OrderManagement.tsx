@@ -192,7 +192,7 @@ const OrderManagement = () => {
               <SelectContent>
                 <SelectItem value="all">All Payments</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="pending">Pending</Select Item>
+                <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="failed">Failed</SelectItem>
               </SelectContent>
             </Select>
