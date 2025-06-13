@@ -103,9 +103,7 @@ const AbandonedCarts = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Potential Revenue</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ₹{carts.reduce((sum, cart) => sum + (cart.total_amount || 0), 0).to
-
-Fixed(2)}
+                  ₹{carts.reduce((sum, cart) => sum + (cart.total_amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <Badge variant="outline" className="text-orange-600">Lost Sales</Badge>
