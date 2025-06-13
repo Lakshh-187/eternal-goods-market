@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -99,7 +98,7 @@ const UserManagement = () => {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select('id, total_amount, status')
+        .select('id, total_amount, status, created_at')
         .eq('customer_id', customerId);
 
       if (error) throw error;
@@ -108,7 +107,7 @@ const UserManagement = () => {
       return {
         totalOrders: orders.length,
         totalSpent: orders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0),
-        lastOrderDate: orders.length > 0 ? Math.max(...orders.map(o => new Date(o.created_at).getTime())) : null
+        lastOrderDate: orders.length > 0 ? orders[0].created_at : null
       };
     } catch (error) {
       console.error('Error getting customer stats:', error);
