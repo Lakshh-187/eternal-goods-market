@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import AdminProductManagement from '@/components/admin/AdminProductManagement';
+import ProductManagement from '@/components/admin/ProductManagement';
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -144,9 +143,9 @@ const Admin = () => {
             <TabsTrigger value="customers">Customers</TabsTrigger>
           </TabsList>
           
-          {/* Products Tab - Now using the new comprehensive management system */}
+          {/* Products Tab - Now using the corrected ProductManagement component */}
           <TabsContent value="products">
-            <AdminProductManagement />
+            <ProductManagement />
           </TabsContent>
 
           {/* Orders Tab - keeping existing functionality */}
