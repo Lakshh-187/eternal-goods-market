@@ -95,27 +95,6 @@ const UserManagement = () => {
     }
   };
 
-  const getCustomerOrderStats = async (customerId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('id, total_amount, status')
-        .eq('customer_id', customerId);
-
-      if (error) throw error;
-
-      const orders = data || [];
-      return {
-        totalOrders: orders.length,
-        totalSpent: orders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0),
-        lastOrderDate: orders.length > 0 ? Math.max(...orders.map(o => new Date(o.created_at).getTime())) : null
-      };
-    } catch (error) {
-      console.error('Error getting customer stats:', error);
-      return { totalOrders: 0, totalSpent: 0, lastOrderDate: null };
-    }
-  };
-
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = !searchTerm || 
       customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -327,9 +306,9 @@ const CustomerDetailsView = ({ customer }: { customer: Customer }) => {
   const [orderStats, setOrderStats] = useState({
     totalOrders: 0,
     totalSpent: 0,
-    lastOrderDate: null
+    lastOrderDate: null as string | null
   });
-  const [recentOrders, setRecentOrders] = useState([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
 
   useEffect(() => {
     loadCustomerDetails();
