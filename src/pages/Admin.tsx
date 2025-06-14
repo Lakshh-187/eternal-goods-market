@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import ProductManagement from '@/components/admin/ProductManagement';
+import AdminProductManagement from '@/components/admin/AdminProductManagement';
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -145,7 +145,7 @@ const Admin = () => {
           
           {/* Products Tab - Now using the corrected ProductManagement component */}
           <TabsContent value="products">
-            <ProductManagement />
+            <AdminProductManagement />
           </TabsContent>
 
           {/* Orders Tab - keeping existing functionality */}
