@@ -2,58 +2,84 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Gift, Users, TrendingDown } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Gift, Users, TrendingUp, Plus, Edit, Trash2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
+interface ReferralCode {
+  id: string;
+  code: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  is_active: boolean;
+  max_uses?: number;
+  current_uses: number;
+  expires_at?: string;
+  created_at: string;
+}
+
+interface ReferralUsage {
+  id: string;
+  referral_code: {
+    code: string;
+  };
+  original_amount: number;
+  discount_amount: number;
+  final_amount: number;
+  created_at: string;
+  order_id: string;
+}
+
 const ReferralManagement = () => {
-  const [referralCodes, setReferralCodes] = useState<any[]>([]);
-  const [referralUsage, setReferralUsage] = useState<any[]>([]);
+  const [referralCodes, setReferralCodes] = useState<ReferralCode[]>([]);
+  const [referralUsage, setReferralUsage] = useState<ReferralUsage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [newCode, setNewCode] = useState({
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingCode, setEditingCode] = useState<ReferralCode | null>(null);
+  const [formData, setFormData] = useState({
     code: '',
-    discount_type: 'percentage',
-    discount_value: '',
+    discount_type: 'percentage' as 'percentage' | 'fixed',
+    discount_value: 0,
     max_uses: '',
     expires_at: ''
   });
 
   useEffect(() => {
-    loadData();
+    loadReferralData();
   }, []);
 
-  const loadData = async () => {
+  const loadReferralData = async () => {
     try {
+      setLoading(true);
+
       // Load referral codes
-      const { data: codesData, error: codesError } = await supabase
+      const { data: codes, error: codesError } = await supabase
         .from('referral_codes')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (codesError) throw codesError;
-      setReferralCodes(codesData || []);
 
       // Load referral usage
-      const { data: usageData, error: usageError } = await supabase
+      const { data: usage, error: usageError } = await supabase
         .from('referral_usage')
         .select(`
           *,
-          referral_codes(code),
-          orders(order_number)
+          referral_codes!inner(code)
         `)
-        .order('created_at', { ascending: false });
-      
-      if (usageError) throw usageError;
-      setReferralUsage(usageData || []);
+        .order('created_at', { ascending: false })
+        .limit(100);
 
+      if (usageError) throw usageError;
+
+      setReferralCodes(codes || []);
+      setReferralUsage(usage || []);
     } catch (error) {
       console.error('Error loading referral data:', error);
       toast.error('Failed to load referral data');
@@ -62,96 +88,161 @@ const ReferralManagement = () => {
     }
   };
 
-  const createReferralCode = async () => {
+  const handleSaveReferralCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.code || !formData.discount_value) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
     try {
       const codeData = {
-        code: newCode.code.toUpperCase(),
-        discount_type: newCode.discount_type,
-        discount_value: parseFloat(newCode.discount_value),
-        max_uses: newCode.max_uses ? parseInt(newCode.max_uses) : null,
-        expires_at: newCode.expires_at ? new Date(newCode.expires_at).toISOString() : null
+        code: formData.code.toUpperCase(),
+        discount_type: formData.discount_type,
+        discount_value: Number(formData.discount_value),
+        max_uses: formData.max_uses ? Number(formData.max_uses) : null,
+        expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
+        is_active: true
       };
 
-      const { error } = await supabase
-        .from('referral_codes')
-        .insert([codeData]);
-      
-      if (error) throw error;
-      
-      toast.success('Referral code created successfully!');
-      setShowCreateDialog(false);
-      setNewCode({
+      if (editingCode) {
+        // Update existing code
+        const { error } = await supabase
+          .from('referral_codes')
+          .update(codeData)
+          .eq('id', editingCode.id);
+
+        if (error) throw error;
+        toast.success('Referral code updated successfully');
+      } else {
+        // Create new code
+        const { error } = await supabase
+          .from('referral_codes')
+          .insert([codeData]);
+
+        if (error) throw error;
+        toast.success('Referral code created successfully');
+      }
+
+      setDialogOpen(false);
+      setEditingCode(null);
+      setFormData({
         code: '',
         discount_type: 'percentage',
-        discount_value: '',
+        discount_value: 0,
         max_uses: '',
         expires_at: ''
       });
-      loadData();
-    } catch (error) {
-      console.error('Error creating referral code:', error);
-      toast.error('Failed to create referral code');
+      loadReferralData();
+    } catch (error: any) {
+      console.error('Error saving referral code:', error);
+      if (error.code === '23505') {
+        toast.error('A referral code with this name already exists');
+      } else {
+        toast.error('Failed to save referral code');
+      }
     }
   };
 
-  const toggleCodeStatus = async (codeId: string, currentStatus: boolean) => {
+  const handleEditCode = (code: ReferralCode) => {
+    setEditingCode(code);
+    setFormData({
+      code: code.code,
+      discount_type: code.discount_type,
+      discount_value: code.discount_value,
+      max_uses: code.max_uses?.toString() || '',
+      expires_at: code.expires_at ? new Date(code.expires_at).toISOString().split('T')[0] : ''
+    });
+    setDialogOpen(true);
+  };
+
+  const handleToggleActive = async (code: ReferralCode) => {
     try {
       const { error } = await supabase
         .from('referral_codes')
-        .update({ is_active: !currentStatus })
-        .eq('id', codeId);
-      
+        .update({ is_active: !code.is_active })
+        .eq('id', code.id);
+
       if (error) throw error;
-      
-      toast.success('Referral code status updated!');
-      loadData();
+      toast.success(`Referral code ${code.is_active ? 'deactivated' : 'activated'}`);
+      loadReferralData();
     } catch (error) {
-      console.error('Error updating referral code:', error);
+      console.error('Error toggling referral code:', error);
       toast.error('Failed to update referral code');
     }
   };
 
-  const totalDiscountGiven = referralUsage.reduce((sum, usage) => sum + parseFloat(usage.discount_amount), 0);
-  const totalUsers = new Set(referralUsage.map(usage => usage.user_id)).size;
+  const handleDeleteCode = async (codeId: string) => {
+    if (!confirm('Are you sure you want to delete this referral code?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('referral_codes')
+        .delete()
+        .eq('id', codeId);
+
+      if (error) throw error;
+      toast.success('Referral code deleted successfully');
+      loadReferralData();
+    } catch (error) {
+      console.error('Error deleting referral code:', error);
+      toast.error('Failed to delete referral code');
+    }
+  };
+
+  const totalDiscountGiven = referralUsage.reduce((sum, usage) => sum + usage.discount_amount, 0);
+  const totalUsages = referralUsage.length;
+  const avgDiscountPerUse = totalUsages > 0 ? totalDiscountGiven / totalUsages : 0;
 
   return (
     <div className="space-y-6">
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Codes</p>
-                <p className="text-3xl font-bold">
-                  {referralCodes.filter(code => code.is_active).length}
-                </p>
+                <p className="text-2xl font-bold">{referralCodes.filter(c => c.is_active).length}</p>
               </div>
-              <Gift className="h-8 w-8 text-green-500" />
+              <Gift className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Users Benefited</p>
-                <p className="text-3xl font-bold">{totalUsers}</p>
+                <p className="text-sm font-medium text-gray-600">Total Usage</p>
+                <p className="text-2xl font-bold">{totalUsages}</p>
               </div>
-              <Users className="h-8 w-8 text-blue-500" />
+              <Users className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Discount Given</p>
-                <p className="text-3xl font-bold">₹{totalDiscountGiven.toFixed(2)}</p>
+                <p className="text-sm font-medium text-gray-600">Total Discount</p>
+                <p className="text-2xl font-bold">₹{totalDiscountGiven.toFixed(2)}</p>
               </div>
-              <TrendingDown className="h-8 w-8 text-red-500" />
+              <TrendingUp className="h-8 w-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Avg Discount</p>
+                <p className="text-2xl font-bold">₹{avgDiscountPerUse.toFixed(2)}</p>
+              </div>
+              <Gift className="h-8 w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
@@ -163,172 +254,223 @@ const ReferralManagement = () => {
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Referral Codes</CardTitle>
-              <CardDescription>Manage discount codes and track their usage</CardDescription>
+              <CardDescription>Manage discount codes and promotions</CardDescription>
             </div>
-            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Code
+                <Button onClick={() => {
+                  setEditingCode(null);
+                  setFormData({
+                    code: '',
+                    discount_type: 'percentage',
+                    discount_value: 0,
+                    max_uses: '',
+                    expires_at: ''
+                  });
+                }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Referral Code
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Create New Referral Code</DialogTitle>
-                  <DialogDescription>Set up a new discount code for customers</DialogDescription>
+                  <DialogTitle>{editingCode ? 'Edit Referral Code' : 'Create Referral Code'}</DialogTitle>
+                  <DialogDescription>
+                    {editingCode ? 'Update referral code details' : 'Create a new referral code for discounts'}
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="code">Code</Label>
+                <form onSubmit={handleSaveReferralCode} className="space-y-4">
+                  <div>
+                    <Label htmlFor="code">Code *</Label>
                     <Input
                       id="code"
-                      value={newCode.code}
-                      onChange={(e) => setNewCode(prev => ({ ...prev, code: e.target.value }))}
-                      placeholder="DISCOUNT20"
+                      value={formData.code}
+                      onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                      placeholder="DISCOUNT30"
+                      required
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="discount_type">Discount Type</Label>
+                    <div>
+                      <Label htmlFor="discount_type">Discount Type *</Label>
                       <Select
-                        value={newCode.discount_type}
-                        onValueChange={(value) => setNewCode(prev => ({ ...prev, discount_type: value }))}
+                        value={formData.discount_type}
+                        onValueChange={(value: 'percentage' | 'fixed') => 
+                          setFormData(prev => ({ ...prev, discount_type: value }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="percentage">Percentage</SelectItem>
-                          <SelectItem value="fixed">Fixed Amount</SelectItem>
+                          <SelectItem value="percentage">Percentage (%)</SelectItem>
+                          <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="discount_value">Discount Value</Label>
+
+                    <div>
+                      <Label htmlFor="discount_value">
+                        Discount Value * {formData.discount_type === 'percentage' ? '(%)' : '(₹)'}
+                      </Label>
                       <Input
                         id="discount_value"
                         type="number"
-                        value={newCode.discount_value}
-                        onChange={(e) => setNewCode(prev => ({ ...prev, discount_value: e.target.value }))}
-                        placeholder={newCode.discount_type === 'percentage' ? '20' : '100'}
+                        min="0"
+                        step={formData.discount_type === 'percentage' ? '1' : '0.01'}
+                        max={formData.discount_type === 'percentage' ? '100' : undefined}
+                        value={formData.discount_value}
+                        onChange={(e) => setFormData(prev => ({ ...prev, discount_value: parseFloat(e.target.value) || 0 }))}
+                        required
                       />
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div>
                       <Label htmlFor="max_uses">Max Uses (Optional)</Label>
                       <Input
                         id="max_uses"
                         type="number"
-                        value={newCode.max_uses}
-                        onChange={(e) => setNewCode(prev => ({ ...prev, max_uses: e.target.value }))}
-                        placeholder="100"
+                        min="1"
+                        value={formData.max_uses}
+                        onChange={(e) => setFormData(prev => ({ ...prev, max_uses: e.target.value }))}
+                        placeholder="Unlimited"
                       />
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="expires_at">Expires At (Optional)</Label>
+
+                    <div>
+                      <Label htmlFor="expires_at">Expiry Date (Optional)</Label>
                       <Input
                         id="expires_at"
-                        type="datetime-local"
-                        value={newCode.expires_at}
-                        onChange={(e) => setNewCode(prev => ({ ...prev, expires_at: e.target.value }))}
+                        type="date"
+                        value={formData.expires_at}
+                        onChange={(e) => setFormData(prev => ({ ...prev, expires_at: e.target.value }))}
                       />
                     </div>
                   </div>
-                  
-                  <Button onClick={createReferralCode} className="w-full">
-                    Create Referral Code
-                  </Button>
-                </div>
+
+                  <div className="flex justify-end gap-4">
+                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">
+                      {editingCode ? 'Update Code' : 'Create Code'}
+                    </Button>
+                  </div>
+                </form>
               </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Uses</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Expires</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {referralCodes.map((code) => (
-                <TableRow key={code.id}>
-                  <TableCell className="font-medium">{code.code}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{code.discount_type}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {code.discount_type === 'percentage' ? `${code.discount_value}%` : `₹${code.discount_value}`}
-                  </TableCell>
-                  <TableCell>
-                    {code.current_uses || 0}
-                    {code.max_uses && ` / ${code.max_uses}`}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={code.is_active ? 'default' : 'secondary'}>
-                      {code.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {code.expires_at ? new Date(code.expires_at).toLocaleDateString() : 'Never'}
-                  </TableCell>
-                  <TableCell>
-                    <Switch
-                      checked={code.is_active}
-                      onCheckedChange={() => toggleCodeStatus(code.id, code.is_active)}
-                    />
-                  </TableCell>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>Usage</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {referralCodes.map((code) => (
+                  <TableRow key={code.id}>
+                    <TableCell className="font-mono font-medium">{code.code}</TableCell>
+                    <TableCell>
+                      {code.discount_type === 'percentage' 
+                        ? `${code.discount_value}%` 
+                        : `₹${code.discount_value}`
+                      }
+                    </TableCell>
+                    <TableCell>
+                      {code.current_uses}{code.max_uses ? ` / ${code.max_uses}` : ' / ∞'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={code.is_active ? 'default' : 'secondary'}>
+                        {code.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {code.expires_at 
+                        ? new Date(code.expires_at).toLocaleDateString()
+                        : 'Never'
+                      }
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditCode(code)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleActive(code)}
+                        >
+                          {code.is_active ? 'Deactivate' : 'Activate'}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteCode(code.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Usage History */}
+      {/* Recent Usage */}
       <Card>
         <CardHeader>
-          <CardTitle>Usage History</CardTitle>
-          <CardDescription>Track how referral codes are being used</CardDescription>
+          <CardTitle>Recent Referral Usage</CardTitle>
+          <CardDescription>Latest referral code usage by customers</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Order</TableHead>
-                <TableHead>Original Amount</TableHead>
-                <TableHead>Discount</TableHead>
-                <TableHead>Final Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {referralUsage.map((usage) => (
-                <TableRow key={usage.id}>
-                  <TableCell>{new Date(usage.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Badge>{usage.referral_codes?.code}</Badge>
-                  </TableCell>
-                  <TableCell>{usage.orders?.order_number || 'N/A'}</TableCell>
-                  <TableCell>₹{parseFloat(usage.original_amount).toFixed(2)}</TableCell>
-                  <TableCell className="text-red-600">-₹{parseFloat(usage.discount_amount).toFixed(2)}</TableCell>
-                  <TableCell className="font-medium">₹{parseFloat(usage.final_amount).toFixed(2)}</TableCell>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code Used</TableHead>
+                  <TableHead>Original Amount</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>Final Amount</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {referralUsage.map((usage) => (
+                  <TableRow key={usage.id}>
+                    <TableCell className="font-mono">{usage.referral_code.code}</TableCell>
+                    <TableCell>₹{usage.original_amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-green-600">-₹{usage.discount_amount.toFixed(2)}</TableCell>
+                    <TableCell className="font-medium">₹{usage.final_amount.toFixed(2)}</TableCell>
+                    <TableCell>{new Date(usage.created_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {referralUsage.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No referral usage found.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
