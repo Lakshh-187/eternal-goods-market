@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -80,10 +80,10 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="container-custom py-8">
+      <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="overflow-x-auto">
-            <TabsList className="grid grid-cols-8 lg:grid-cols-15 gap-1 h-auto p-1 min-w-max">
+            <TabsList className="grid grid-cols-4 lg:grid-cols-8 xl:grid-cols-15 gap-1 h-auto p-1 min-w-max">
               {tabItems.map((tab) => (
                 <TabsTrigger 
                   key={tab.id} 

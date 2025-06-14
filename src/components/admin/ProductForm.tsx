@@ -18,7 +18,7 @@ interface Category {
   name: string;
 }
 
-interface Product {
+interface ProductFormData {
   id?: string;
   name: string;
   description: string;
@@ -39,15 +39,16 @@ interface Product {
 interface ProductFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  product?: Product;
+  product?: ProductFormData;
   onSuccess: () => void;
+  onCancel?: () => void;
 }
 
-const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProps) => {
+const ProductForm = ({ open, onOpenChange, product, onSuccess, onCancel }: ProductFormProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
-  const [formData, setFormData] = useState<Product>({
+  const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
     short_description: '',
@@ -69,7 +70,10 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
     if (open) {
       loadCategories();
       if (product) {
-        setFormData(product);
+        setFormData({
+          ...product,
+          status: product.status as 'active' | 'inactive'
+        });
       } else {
         setFormData({
           name: '',
@@ -212,6 +216,13 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
+    onOpenChange(false);
   };
 
   return (
@@ -454,7 +465,7 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
           </div>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
