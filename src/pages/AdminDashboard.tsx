@@ -1,11 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Users, Package, Target, TrendingUp, ShoppingCart, Heart, MessageSquare, Settings, CreditCard, Truck, BarChart3, UserCheck, Gift, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 // Import admin components
 import DashboardOverview from '@/components/admin/DashboardOverview';
@@ -22,8 +25,6 @@ import SiteSettings from '@/components/admin/SiteSettings';
 import SupportTickets from '@/components/admin/SupportTickets';
 import NewsletterManagement from '@/components/admin/NewsletterManagement';
 import AbandonedCarts from '@/components/admin/AbandonedCarts';
-import ProductAnalytics from '@/components/admin/ProductAnalytics';
-import ReferralManagement from '@/components/admin/ReferralManagement';
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -45,15 +46,14 @@ const AdminDashboard = () => {
   const tabItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'products', label: 'Products', icon: Package },
-    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'orders', label: 'Orders', icon: Target },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'payments', label: 'Payments', icon: CreditCard },
-    { id: 'referrals', label: 'Referrals', icon: Gift },
     { id: 'coupons', label: 'Coupons', icon: Gift },
     { id: 'shipping', label: 'Shipping', icon: Truck },
     { id: 'reviews', label: 'Reviews', icon: MessageSquare },
     { id: 'returns', label: 'Returns', icon: RotateCcw },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'abandoned', label: 'Abandoned Carts', icon: ShoppingCart },
     { id: 'support', label: 'Support', icon: UserCheck },
     { id: 'newsletter', label: 'Newsletter', icon: Heart },
@@ -80,22 +80,20 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container-custom py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="overflow-x-auto">
-            <TabsList className="grid grid-cols-4 lg:grid-cols-8 xl:grid-cols-15 gap-1 h-auto p-1 min-w-max">
-              {tabItems.map((tab) => (
-                <TabsTrigger 
-                  key={tab.id} 
-                  value={tab.id}
-                  className="flex flex-col items-center gap-1 p-3 text-xs whitespace-nowrap"
-                >
-                  <tab.icon className="h-4 w-4" />
-                  <span>{tab.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+          <TabsList className="grid grid-cols-7 lg:grid-cols-14 gap-1 h-auto p-1">
+            {tabItems.map((tab) => (
+              <TabsTrigger 
+                key={tab.id} 
+                value={tab.id}
+                className="flex flex-col items-center gap-1 p-3 text-xs"
+              >
+                <tab.icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
           
           <TabsContent value="dashboard">
             <DashboardOverview />
@@ -103,10 +101,6 @@ const AdminDashboard = () => {
 
           <TabsContent value="products">
             <ProductManagement />
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <ProductAnalytics />
           </TabsContent>
 
           <TabsContent value="orders">
@@ -119,10 +113,6 @@ const AdminDashboard = () => {
 
           <TabsContent value="payments">
             <PaymentManagement />
-          </TabsContent>
-
-          <TabsContent value="referrals">
-            <ReferralManagement />
           </TabsContent>
 
           <TabsContent value="coupons">
@@ -139,6 +129,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="returns">
             <ReturnManagement />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsReports />
           </TabsContent>
 
           <TabsContent value="abandoned">
