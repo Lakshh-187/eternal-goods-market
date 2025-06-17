@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +11,7 @@ import { toast } from 'sonner';
 
 // Import admin components
 import DashboardOverview from '@/components/admin/DashboardOverview';
-import ProductManagement from '@/components/admin/ProductManagement';
+import ProductManager from '@/components/admin/ProductManager';
 import OrderManagement from '@/components/admin/OrderManagement';
 import UserManagement from '@/components/admin/UserManagement';
 import PaymentManagement from '@/components/admin/PaymentManagement';
@@ -100,7 +99,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="products">
-            <ProductManagement />
+            <ProductManager />
           </TabsContent>
 
           <TabsContent value="orders">
