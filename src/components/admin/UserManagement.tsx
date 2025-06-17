@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -99,7 +98,7 @@ const UserManagement = () => {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select('id, total_amount, status')
+        .select('id, total_amount, status, created_at')
         .eq('customer_id', customerId);
 
       if (error) throw error;
