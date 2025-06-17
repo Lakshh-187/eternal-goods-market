@@ -285,7 +285,7 @@ const ProductManagement = () => {
   );
 };
 
-// Simple Product Form Component
+// Fixed Product Form Component with proper typing
 const ProductForm = ({ product, onSuccess }: { product: Product | null; onSuccess: () => void }) => {
   const [formData, setFormData] = useState({
     name: product?.name || '',
@@ -294,7 +294,7 @@ const ProductForm = ({ product, onSuccess }: { product: Product | null; onSucces
     price: product?.price?.toString() || '',
     stock: product?.stock?.toString() || '',
     sku: product?.sku || '',
-    status: product?.status || 'active',
+    status: (product?.status || 'active') as 'active' | 'inactive',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -399,7 +399,10 @@ const ProductForm = ({ product, onSuccess }: { product: Product | null; onSucces
         </div>
         <div>
           <Label htmlFor="status">Status</Label>
-          <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+          <Select 
+            value={formData.status} 
+            onValueChange={(value: 'active' | 'inactive') => setFormData(prev => ({ ...prev, status: value }))}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
